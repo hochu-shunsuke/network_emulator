@@ -22,17 +22,73 @@ type Device interface {
 	GetName() string        //デバイス名取得メソッド
 }
 
-type Host struct {
+type Layer interface {
+	HandleOutgoing(p Packet) Packet
+	HandleIncoming(p Packet) Packet
+	GetName() string
+}
+
+type NetworkLayer struct {
 	Name string
+	IP   string
+}
+
+func (nl *NetworkLayer) HandleOutgoing(p Packet) Packet {
+	p.SrcIP = nl.IP
+	fmt.Printf("[IP] %s: Sending packet %s\n", nl.IP, p)
+	return p
+}
+
+func (nl *NetworkLayer) HandleIncoming(p Packet) Packet {
+	if p.DstIP == nl.IP {
+		fmt.Printf("[IP] %s: Received packet for me: %s\n", nl.IP, p)
+	} else {
+		fmt.Printf("[IP] %s: Dropping packet (wrong IP): %s\n", nl.IP, p)
+	}
+	return p
+}
+
+func (nl *NetworkLayer) GetName() string {
+	return nl.Name
+}
+
+type DataLinkLayer struct {
+	Name string
+	MAC  string
+}
+
+func (dl *DataLinkLayer) HandleOutgoing(p Packet) Packet {
+	p.SrcMAC = dl.MAC
+	fmt.Printf("[MAC] %s: Sending packet %s\n", dl.Name, dl.MAC)
+	return p
+}
+
+func (dl *DataLinkLayer) HandleIncoming(p Packet) Packet {
+	if p.DstMAC == dl.MAC {
+		fmt.Printf("[MAC] %s: Received packet for me: %s\n", dl.Name, p)
+	} else {
+		fmt.Printf("[MAC] %s: Dropping packet (wrong MAC): %s\n", dl.Name, p)
+	}
+	return p
+}
+
+func (dl *DataLinkLayer) GetName() string {
+	return dl.Name
+}
+
+type Host struct {
+	Name   string
+	Layers []Layer
 }
 
 // Packetを引数で受け取り送信する
 func (h *Host) SendPacket(p Packet) {
-	fmt.Printf("%s is sending packet: %s\n", h.Name, p)
+	fmt.Printf("%s is sending packet\n", h.Name)
+
 }
 
 func (h *Host) ReceivePacket(p Packet) {
-	fmt.Printf("%s is receiving packet: %s\n", h.Name, p)
+	fmt.Printf("%s is receiving packet\n", h.Name)
 }
 
 func (h *Host) GetName() string {
