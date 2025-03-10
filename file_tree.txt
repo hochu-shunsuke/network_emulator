@@ -1,0 +1,26 @@
+network-emulator/
+├── cmd/
+│   └── main.go
+├── internal/
+│   ├── device/
+│   │   ├── base.go
+│   │   ├── host.go
+│   │   └── switch.go
+│   ├── layer/
+│   │   ├── physical.go
+│   │   ├── datalink.go
+│   │   ├── network.go
+│   │   └── layer.go
+│   ├── packet/
+│   │   ├── base.go
+│   │   ├── ethernet.go
+│   │   └── ipv4.go
+│   ├── link/
+│   │   └── link.go
+│   └── event/
+│       └── bus.go
+├── pkg/
+│   └── utils/
+│       └── converter.go
+└── test/
+    └── scenarios/
