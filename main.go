@@ -4,12 +4,15 @@ import "fmt"
 
 // 基本的なパケット構造体
 type Packet struct {
-	Data string
+	Data   string
+	SrcIP  string
+	DstIP  string
+	SrcMAC string
+	DstMAC string
 }
 
-// {Data: data}のdataのみを返すために書いている
 func (p Packet) String() string {
-	return p.Data
+	return fmt.Sprintf("From %s (%s) to %s (%s): %s", p.SrcIP, p.SrcMAC, p.DstIP, p.DstMAC, p.Data)
 }
 
 // ネットワークデバイスのインターフェース（パケットの送受信を定義）
@@ -40,7 +43,7 @@ func (h *Host) GetName() string {
 func main() {
 	host1 := &Host{Name: "Host1"}
 	host2 := &Host{Name: "Host2"}
-	packet := Packet{Data: "Hello ,Network!!"}
+	packet := Packet{Data: "Hello Network!!", SrcIP: "192.168.1.1", DstIP: "192.168.1.2", SrcMAC: "AA:BB:CC:DD:EE:01", DstMAC: "AA:BB:CC:DD:EE:02"}
 	host1.SendPacket(packet)
 	host2.ReceivePacket(packet)
 }
