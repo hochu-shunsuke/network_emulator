@@ -84,11 +84,18 @@ type Host struct {
 // Packetを引数で受け取り送信する
 func (h *Host) SendPacket(p Packet) {
 	fmt.Printf("%s is sending packet\n", h.Name)
-
+	//高レイヤから低レイヤへ
+	for i := len(h.Layers) - 1; i >= 0; i-- {
+		p = h.Layers[i].HandleOutgoing(p)
+	}
 }
 
 func (h *Host) ReceivePacket(p Packet) {
 	fmt.Printf("%s is receiving packet\n", h.Name)
+	//低レイヤから高レイヤへ
+	for _, layer := range h.Layers {
+		p = layer.HandleIncoming(p)
+	}
 }
 
 func (h *Host) GetName() string {
@@ -97,8 +104,14 @@ func (h *Host) GetName() string {
 
 // Packetを作成、送信と受信を行う。
 func main() {
-	host1 := &Host{Name: "Host1"}
-	host2 := &Host{Name: "Host2"}
+	host1 := &Host{Name: "Host1", Layers: []Layer{
+		&DataLinkLayer{Name: "DataLink", MAC: "AA:BB:CC:DD:EE:01"},
+		&NetworkLayer{Name: "Network", IP: "192.168.1.1"},
+	}}
+	host2 := &Host{Name: "Host2", Layers: []Layer{
+		&DataLinkLayer{Name: "DataLink", MAC: "AA:BB:CC:DD:EE:02"},
+		&NetworkLayer{Name: "Network", IP: "192.168.1.2"},
+	}}
 	packet := Packet{Data: "Hello Network!!", SrcIP: "192.168.1.1", DstIP: "192.168.1.2", SrcMAC: "AA:BB:CC:DD:EE:01", DstMAC: "AA:BB:CC:DD:EE:02"}
 	host1.SendPacket(packet)
 	host2.ReceivePacket(packet)
